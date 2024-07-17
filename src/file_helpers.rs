@@ -16,8 +16,6 @@ pub mod file_helpers {
 
     #[cfg(test)]
     mod tests {
-        use std::env;
-
         use tempfile::TempDir;
 
         use super::*;
