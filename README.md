@@ -11,11 +11,11 @@ Download the executable from the "Releases" section and run the command:
 A project will be initialized with a new folder with the name passed to the command,
 a src folder within it with a main.cpp file, then a CMakeList.txt and a build folder (empty):
 
-PROJECT_NAME
-|- src
-|   |- main.cpp
-|
-|- build
+PROJECT_NAME<br>
+|- src<br>
+|  |- main.cpp<br>
+|<br>
+|- build<br>
 |- CMakeLists.txt
 
 
