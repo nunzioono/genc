@@ -66,5 +66,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: target/release/*
+          tag_name: ${{ env.TAG_NAME }} # Ensure the release action uses the tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
