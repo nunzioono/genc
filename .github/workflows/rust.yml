@@ -16,7 +16,7 @@ jobs:
       - name: Set up Rust
         uses: actions/setup-rust@v1
         with:
-          rust-version: '1.79.0' # Specify the Rust version you need
+          rust-version: '1.72.0' # Specify the Rust version you need
 
       - name: Install Cargo dependencies
         run: cargo fetch
@@ -30,18 +30,8 @@ jobs:
 
       - name: Create Release
         if: success() # This ensures the release is created only if tests and build succeed
-        uses: actions/github-script@v6
+        uses: softprops/action-gh-release@v1
         with:
-          script: |
-            const { exec } = require('@actions/exec');
-            
-            // Get the version from Cargo.toml
-            const fs = require('fs');
-            const toml = fs.readFileSync('Cargo.toml', 'utf8');
-            const version = toml.match(/version\s*=\s*"([^"]+)"/)[1];
-            
-            // Create a new release
-            const releaseName = `v${version}`;
-            await exec(`gh release create ${releaseName} target/release/* --title "Release ${releaseName}" --notes "Release version ${version}"`);
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          files: target/release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
