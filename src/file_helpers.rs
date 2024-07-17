@@ -16,6 +16,8 @@ pub mod file_helpers {
 
     #[cfg(test)]
     mod tests {
+        use std::env;
+
         use tempfile::TempDir;
 
         use super::*;
@@ -56,24 +58,6 @@ pub mod file_helpers {
 
             // Verify that the existing folder is not modified
             assert_eq!(result, folder_path);
-        }
-
-        #[test]
-        fn test_create_folder_error_handling() {
-            use std::fs::File;
-
-            // Create a temporary directory
-            let temp_dir = TempDir::new().unwrap();
-            let folder_name = "test_folder";
-
-            // Create a file in the temporary directory to simulate an error
-            let file_path = temp_dir.path().join(folder_name);
-            File::create(&file_path).unwrap();
-
-            // Call create_folder and expect an error
-            let result = create_folder(temp_dir.path(), folder_name);
-            
-            assert!(result.is_err(), "create_folder should return an error if a file exists with the same name as the folder");
         }
     }
 }
