@@ -28,75 +28,80 @@ pub mod cmake_helpers {
         file.write_all(FILE_CONTENT)?;
         Ok(())
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::process::Command;
-    use mockall::mock;
 
-    // Mock the Command module
-    mock! {
-        Command {
-            pub fn new<S: AsRef<str>>(program: S) -> Self;
-            pub fn args<I, S>(self, args: I) -> Self where I: IntoIterator<Item=S>, S: AsRef<str>;
-            pub fn status(self) -> std::process::ExitStatus;
+    
+
+    #[cfg(test)]
+    mod tests {
+        use std::io::Read;
+
+        use tempfile::TempDir;
+
+        use super::*;
+
+        #[test]
+        fn test_install_file() {
+            // Create a temporary directory
+            let temp_dir = TempDir::new().unwrap();
+            let file_path = temp_dir.path().join("scaffolder.cmake");
+
+            // Ensure the file does not exist
+            assert!(!file_path.exists(), "File should not exist before installation");
+
+            // Call install_file
+            assert!(install_file(&file_path).is_ok());
+
+            // Verify that the file was created
+            assert!(file_path.exists(), "File should be created");
+
+            // Verify the content of the file
+            let mut file_content = Vec::new();
+            fs::File::open(&file_path)
+                .unwrap()
+                .read_to_end(&mut file_content)
+                .unwrap();
+
+            assert_eq!(file_content, *FILE_CONTENT, "File content does not match");
         }
-    }
 
-    #[test]
-    fn test_install_file() {
-        let temp_dir = TempDir::new().unwrap();
-        let file_path = temp_dir.path().join("scaffolder.cmake");
+        #[test]
+        fn test_run_cmake_command_success() {
+            // Create a temporary directory
+            let temp_dir = TempDir::new().unwrap();
+            let scaffolder_path = temp_dir.path().join("scaffolder.cmake");
 
-        assert!(!file_path.exists(), "File should not exist before installation");
+            // Create a dummy scaffolder file
+            install_file(&scaffolder_path).unwrap();
 
-        assert!(install_file(&file_path).is_ok());
+            // Define a dummy project name
+            let project_name = "test_project".to_string();
 
-        assert!(file_path.exists(), "File should be created");
+            // Execute the CMake command
+            let result = run_cmake_command(&scaffolder_path, project_name.clone());
 
-        let mut file_content = Vec::new();
-        fs::File::open(&file_path)
-            .unwrap()
-            .read_to_end(&mut file_content)
-            .unwrap();
+            // Check if the command was executed successfully
+            assert!(result.is_ok(), "CMake command should succeed");
 
-        assert_eq!(file_content, *FILE_CONTENT, "File content does not match");
-    }
+            // Optionally, you might want to check the actual output or behavior
+            // of the CMake command if running in a real environment.
+            // This depends on your specific test environment and setup.
+        }
 
-    #[test]
-    fn test_run_cmake_command_success() {
-        let _mock_command = MockCommand::new("cmake");
-        _mock_command
-            .expect_args()
-            .return_once(|_| _mock_command.clone());
-        _mock_command
-            .expect_status()
-            .return_once(|| std::process::ExitStatus::from_raw(0));
+        #[test]
+        fn test_run_cmake_command_failure() {
+            // Create a temporary directory
+            let temp_dir = TempDir::new().unwrap();
+            let invalid_path = temp_dir.path().join("invalid.cmake");
 
-        let temp_dir = TempDir::new().unwrap();
-        let scaffolder_path = temp_dir.path().join("scaffolder.cmake");
-        let project_name = "test_project".to_string();
+            // Define a dummy project name
+            let project_name = "test_project".to_string();
 
-        assert!(run_cmake_command(&scaffolder_path, project_name).is_ok());
-    }
+            // Execute the CMake command with an invalid file path
+            let result = run_cmake_command(&invalid_path, project_name.clone());
 
-    #[test]
-    fn test_run_cmake_command_failure() {
-        let _mock_command = MockCommand::new("cmake");
-        _mock_command
-            .expect_args()
-            .return_once(|_| _mock_command.clone());
-        _mock_command
-            .expect_status()
-            .return_once(|| std::process::ExitStatus::from_raw(1));
-
-        let temp_dir = TempDir::new().unwrap();
-        let scaffolder_path = temp_dir.path().join("scaffolder.cmake");
-        let project_name = "test_project".to_string();
-
-        let result = run_cmake_command(&scaffolder_path, project_name);
-        assert!(result.is_err(), "CMake command should fail");
+            // Check if the command returns an error
+            assert!(result.is_err(), "CMake command should fail with an invalid file path");
+        }
     }
 }

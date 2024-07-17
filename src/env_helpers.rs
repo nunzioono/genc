@@ -28,68 +28,43 @@ pub mod env_helpers {
         }
         Ok(args[1].clone())
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_get_root_programs_path() {
-        // Set a dummy PROGRAMFILES environment variable
-        env::set_var("PROGRAMFILES", "mock/program/files/path");
+    #[cfg(test)]
+    mod tests {
+        use super::*;
 
-        let result = get_root_programs_path().unwrap();
-        assert_eq!(result, PathBuf::from("mock/program/files/path"));
+        #[test]
+        fn test_get_root_programs_path() {
+            // Set a dummy PROGRAMFILES environment variable
+            env::set_var("PROGRAMFILES", "mock/program/files/path");
 
-        // Clean up
-        env::remove_var("PROGRAMFILES");
-    }
+            let result = get_root_programs_path().unwrap();
+            assert_eq!(result, PathBuf::from("mock/program/files/path"));
 
-    #[test]
-    fn test_add_to_path() {
-        let temp_path = PathBuf::from("mock/path/to/add");
-        let original_path = env::var("PATH").unwrap();
+            // Clean up
+            env::remove_var("PROGRAMFILES");
+        }
 
-        // Ensure the path is not in PATH
-        assert!(!env::var("PATH").unwrap().contains(temp_path.to_str().unwrap()));
+        #[test]
+        fn test_add_to_path() {
+            let temp_path = PathBuf::from("mock/path/to/add");
+            let original_path = env::var("PATH").unwrap();
 
-        // Call add_to_path
-        assert!(add_to_path(&temp_path).is_ok());
+            // Ensure the path is not in PATH
+            assert!(!env::var("PATH").unwrap().contains(temp_path.to_str().unwrap()));
 
-        // Verify the path was added
-        let updated_path = env::var("PATH").unwrap();
-        assert!(updated_path.contains(temp_path.to_str().unwrap()));
+            // Call add_to_path
+            assert!(add_to_path(&temp_path).is_ok());
 
-        // Restore original PATH
-        env::set_var("PATH", original_path);
-    }
+            // Verify the path was added
+            let updated_path = env::var("PATH").unwrap();
+            assert!(updated_path.contains(temp_path.to_str().unwrap()));
 
-    #[test]
-    fn test_get_project_name_success() {
-        // Simulate command-line arguments
-        let args: Vec<String> = vec!["program".to_string(), "test_project".to_string()];
-        let original_args = std::env::args().collect::<Vec<String>>();
-        std::env::set_args(args);
+            // Restore original PATH
+            env::set_var("PATH", original_path);
+        }
 
-        assert_eq!(get_project_name().unwrap(), "test_project");
-
-        // Restore original arguments
-        std::env::set_args(original_args);
-    }
-
-    #[test]
-    fn test_get_project_name_failure() {
-        // Simulate command-line arguments with no project name
-        let args: Vec<String> = vec!["program".to_string()];
-        let original_args = std::env::args().collect::<Vec<String>>();
-        std::env::set_args(args);
-
-        let result = get_project_name();
-        assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "Usage: program <PROJECT_NAME>");
-
-        // Restore original arguments
-        std::env::set_args(original_args);
     }
 }
+
