@@ -5,7 +5,7 @@ pub mod cmake_helpers {
     use std::path::Path;
     use anyhow::{Context, Result};
 
-    const FILE_CONTENT: &[u8] = include_bytes!("C:/Users/nunzi/OneDrive/Desktop/genc/scaffolder.cmake");
+    const FILE_CONTENT: &[u8] = include_bytes!("../scaffolder.cmake");
 
     pub fn run_cmake_command(scaffolder_path: &Path, project_name: String) -> Result<()> {
         let status = Command::new("cmake")
