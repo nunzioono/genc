@@ -29,13 +29,32 @@ jobs:
         run: cargo build --release
         # Builds the crate in release mode
 
+      - name: Determine Version and Tag
+        id: determine_version
+        run: |
+          # Extract version from Cargo.toml
+          VERSION=$(grep '^version' Cargo.toml | sed -E 's/version\s*=\s*"(.*)"/\1/')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+          # Check if the tag already exists
+          TAG_NAME="v${VERSION}"
+          if git rev-parse "${TAG_NAME}" >/dev/null 2>&1; then
+            echo "Tag ${TAG_NAME} already exists. Incrementing version..."
+            # Find the highest existing tag and increment the patch version
+            TAGS=$(git tag -l 'v*')
+            TAG_NAME=$(echo "$TAGS" | sort -V | tail -n 1 | awk -F. -v OFS=. '{print $1 "." $2 "." $3+1}')
+          fi
+
+          echo "Using tag: ${TAG_NAME}"
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
+
       - name: Create Tag
         id: create_tag
         run: |
-          # Create a version tag based on the current date or commit hash
-          TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
-          git tag $TAG_NAME
-          git push origin $TAG_NAME
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git tag ${{ env.TAG_NAME }}
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ env.TAG_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
