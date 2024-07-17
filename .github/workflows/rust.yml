@@ -12,7 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -48,15 +49,16 @@ jobs:
           echo "Using tag: ${TAG_NAME}"
           echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
 
-      - name: Create Tag
-        id: create_tag
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git tag ${{ env.TAG_NAME }}
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ env.TAG_NAME }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create and Push Tag
+          id: create_tag
+          run: |
+            git config --global user.name "github-actions"
+            git config --global user.email "github-actions@github.com"
+            git tag ${{ env.TAG_NAME }}
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ env.TAG_NAME }}
+          env:
+            TAG_NAME: ${{ env.TAG_NAME }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release
         if: success() # This ensures the release is created only if tests and build succeed
