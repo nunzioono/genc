@@ -29,3 +29,74 @@ pub mod cmake_helpers {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::process::Command;
+    use mockall::mock;
+
+    // Mock the Command module
+    mock! {
+        Command {
+            pub fn new<S: AsRef<str>>(program: S) -> Self;
+            pub fn args<I, S>(self, args: I) -> Self where I: IntoIterator<Item=S>, S: AsRef<str>;
+            pub fn status(self) -> std::process::ExitStatus;
+        }
+    }
+
+    #[test]
+    fn test_install_file() {
+        let temp_dir = TempDir::new().unwrap();
+        let file_path = temp_dir.path().join("scaffolder.cmake");
+
+        assert!(!file_path.exists(), "File should not exist before installation");
+
+        assert!(install_file(&file_path).is_ok());
+
+        assert!(file_path.exists(), "File should be created");
+
+        let mut file_content = Vec::new();
+        fs::File::open(&file_path)
+            .unwrap()
+            .read_to_end(&mut file_content)
+            .unwrap();
+
+        assert_eq!(file_content, *FILE_CONTENT, "File content does not match");
+    }
+
+    #[test]
+    fn test_run_cmake_command_success() {
+        let _mock_command = MockCommand::new("cmake");
+        _mock_command
+            .expect_args()
+            .return_once(|_| _mock_command.clone());
+        _mock_command
+            .expect_status()
+            .return_once(|| std::process::ExitStatus::from_raw(0));
+
+        let temp_dir = TempDir::new().unwrap();
+        let scaffolder_path = temp_dir.path().join("scaffolder.cmake");
+        let project_name = "test_project".to_string();
+
+        assert!(run_cmake_command(&scaffolder_path, project_name).is_ok());
+    }
+
+    #[test]
+    fn test_run_cmake_command_failure() {
+        let _mock_command = MockCommand::new("cmake");
+        _mock_command
+            .expect_args()
+            .return_once(|_| _mock_command.clone());
+        _mock_command
+            .expect_status()
+            .return_once(|| std::process::ExitStatus::from_raw(1));
+
+        let temp_dir = TempDir::new().unwrap();
+        let scaffolder_path = temp_dir.path().join("scaffolder.cmake");
+        let project_name = "test_project".to_string();
+
+        let result = run_cmake_command(&scaffolder_path, project_name);
+        assert!(result.is_err(), "CMake command should fail");
+    }
+}
