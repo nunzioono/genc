@@ -6,13 +6,23 @@ pub mod file_helpers {
 
     pub fn create_folder(base_path: &Path, folder_name: &str) -> Result<PathBuf> {
         let new_folder_path = base_path.join(folder_name);
+        println!("Creating folder at path: {:?}",new_folder_path);
         if !new_folder_path.exists() {
-            fs::create_dir_all(&new_folder_path)
+            fs::create_dir(&new_folder_path)
                 .with_context(|| format!("Failed to create directory {:?}", new_folder_path))?;
         }
         Ok(new_folder_path)
     }
 
+    pub fn remove_folder(base_path: &Path, folder_name: &str) -> Result<PathBuf> {
+        let folder_path = base_path.join(folder_name);
+        println!("Removing folder at path: {:?}", folder_path);
+        if folder_path.exists() {
+            fs::remove_dir_all(&folder_path)
+                .with_context(|| format!("Failed to remove directory {:?}", folder_path))?;
+        }
+        Ok(folder_path)
+    }
 
     #[cfg(test)]
     mod tests {

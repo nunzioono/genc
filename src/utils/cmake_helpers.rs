@@ -5,7 +5,7 @@ pub mod cmake_helpers {
     use std::path::Path;
     use anyhow::{Context, Result};
 
-    const FILE_CONTENT: &[u8] = include_bytes!("../scaffolder.cmake");
+    const FILE_CONTENT: &[u8] = include_bytes!("../../scaffolder.cmake");
 
     pub fn run_cmake_command(scaffolder_path: &Path, project_name: String) -> Result<()> {
         let status = Command::new("cmake")
@@ -24,12 +24,17 @@ pub mod cmake_helpers {
     }
 
     pub fn install_file(destination: &Path) -> Result<()> {
+        println!("Creating file at path: {:?}",destination);
         let mut file = fs::File::create(destination)?;
         file.write_all(FILE_CONTENT)?;
         Ok(())
     }
 
-
+    pub fn remove_file(file_path: &Path) -> Result<()> {
+        println!("Removing file at path: {:?}", file_path);
+        fs::remove_file(file_path)?;
+        Ok(())
+    }
     
 
     #[cfg(test)]
