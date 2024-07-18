@@ -10,12 +10,11 @@ use crate::{
         }, file_helpers::file_helpers::{create_folder, remove_folder}
     },
     CMAKE_SCAFFOLDER_DIR,
-    SCAFFOLDER_FILE_NAME
+    SCAFFOLDER_FILE_NAME,
+    scaffolder::Scaffolder
 };
 
 use anyhow::{anyhow, Result};
-
-use super::scaffolder::Scaffolder;
 
 pub struct ScaffolderBuilder {
     user_data_dir_path: Option<std::path::PathBuf>,

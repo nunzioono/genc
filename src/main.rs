@@ -7,7 +7,7 @@ use scaffolder::{scaffolder_builder::ScaffolderBuilder, scaffolder_strategy::New
 pub const SCAFFOLDER_FILE_NAME: &str = "scaffolder.cmake";
 pub const CMAKE_SCAFFOLDER_DIR: &str = "GenC";
 
-pub fn main() -> Result<()> {
+fn main() -> Result<()> {
     let scaffolder = ScaffolderBuilder::new()
         .build()?;
 

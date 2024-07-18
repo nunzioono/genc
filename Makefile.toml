@@ -1,0 +1,21 @@
+[tasks.build-all]
+description = "Build all targets"
+script = [
+    "cargo build --target x86_64-pc-windows-msvc",
+    "cargo build --target aarch64-pc-windows-msvc",
+    "cargo build --target x86_64-apple-darwin",
+    "cargo build --target aarch64-apple-darwin",
+    "cargo build --target x86_64-unknown-linux-gnu",
+    "cargo build --target aarch64-unknown-linux-gnu"
+]
+
+[tasks.test-all]
+description = "Test all targets"
+script = [
+    "cargo test --target x86_64-pc-windows-msvc",
+    "cargo test --target aarch64-pc-windows-msvc",
+    "cargo test --target x86_64-apple-darwin",
+    "cargo test --target aarch64-apple-darwin",
+    "cargo test --target x86_64-unknown-linux-gnu",
+    "cargo test --target aarch64-unknown-linux-gnu"
+]
